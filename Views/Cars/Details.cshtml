@@ -1,0 +1,403 @@
+﻿@model ArackiralamaProje.Models.Car
+
+@{
+    ViewData["Title"] = "Araç Detayları";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mt-4">
+            <i class="fas fa-car me-2"></i>Araç Detayları
+        </h1>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-1"></i>Düzenle
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Listeye Dön
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-info-circle me-1"></i>
+            Temel Bilgiler
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Ana Resim Gösterimi -->
+                    <div class="main-image-container mb-4 text-center">
+                        @{
+                            var mainImage = Model.Images?.FirstOrDefault(i => i.IsMainImage) ?? Model.Images?.FirstOrDefault();
+                        }
+
+                        @if (mainImage != null)
+                        {
+                            <img id="mainImage" src="@mainImage.ImageUrl" alt="@Model.Model"
+                                 class="img-fluid rounded shadow-lg cursor-zoom" style="max-height: 300px; width: auto;"
+                                 onclick="openModal('@mainImage.ImageUrl')">
+                        }
+                        else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img id="mainImage" src="@Model.ImageUrl" alt="@Model.Model"
+                                 class="img-fluid rounded shadow-lg cursor-zoom" style="max-height: 300px; width: auto;"
+                                 onclick="openModal('@Model.ImageUrl')">
+                        }
+                        else
+                        {
+                            <div class="no-image-placeholder-detail bg-light p-5 rounded">
+                                <i class="fas fa-car-side fa-5x text-muted"></i>
+                                <div class="mt-2">Fotoğraf Yok</div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Kiralama Bilgileri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Günlük Ücret:</span>
+                                <span class="fw-bold">@Model.PricePerDay.ToString("C2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Durum:</span>
+                                @if (Model.IsAvailable)
+                                {
+                                    <span class="badge bg-success">Müsait</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Kiralandı</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <h5 class="info-label">Marka</h5>
+                                <p class="info-value">@Model.CarBrand?.Name</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <h5 class="info-label">Model</h5>
+                                <p class="info-value">@Model.Model</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <h5 class="info-label">Yıl</h5>
+                                <p class="info-value">@Model.Year</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <h5 class="info-label">Plaka</h5>
+                                <p class="info-value plate-number-detail">@Model.PlateNumber</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <h5 class="info-label">Yakıt Türü</h5>
+                                <p class="info-value">@Model.FuelType?.Name</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <h5 class="info-label">Vites Türü</h5>
+                                <p class="info-value">@Model.GearType?.Name</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash-alt me-1"></i>Aracı Sil
+                                </button>
+                                @if (ViewBag.IsCarAvailable)
+                                {
+                                    <a asp-controller="Rental" asp-action="Create" asp-route-carId="@Model.Id"
+                                       class="btn btn-success">
+                                        <i class="fas fa-check-circle me-1"></i> Kirala
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary" disabled>
+                                        <i class="fas fa-times-circle me-1"></i> Müsait Değil
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resim Galerisi Bölümü -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-images me-1"></i> Araç Galerisi
+            <a asp-action="AddImages" asp-route-carId="@Model.Id" class="btn btn-sm btn-light float-end">
+                <i class="fas fa-plus"></i> Resim Ekle
+            </a>
+        </div>
+        <div class="card-body">
+            @if (Model.Images != null && Model.Images.Any())
+            {
+                <!-- Küçük Resimler Galerisi -->
+                <div class="thumbnail-gallery row g-2 mb-4">
+                    @foreach (var image in Model.Images)
+                    {
+                        <div class="col-3 col-md-2">
+                            <div class="thumbnail-container @((mainImage != null && image.Id == mainImage.Id) ? "active" : "")"
+                                 onclick="changeMainImage('@image.ImageUrl', @image.Id)">
+                                <img src="@image.ImageUrl" alt="Thumbnail"
+                                     class="img-thumbnail w-100 cursor-zoom"
+                                     style="height: 100px; object-fit: cover;"
+                                     onclick="openModal('@image.ImageUrl')">
+                                @if (image.IsMainImage)
+                                {
+                                    <div class="main-badge">Ana</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Bu araca henüz resim eklenmemiş.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" style="max-height: 80vh;">
+                <button type="button" class="btn btn-dark position-absolute top-0 end-0 m-2"
+                        data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+                @if (Model.Images != null && Model.Images.Count > 1)
+                {
+                    <div class="navigation-buttons">
+                        <button class="btn btn-light btn-navigation prev-btn" onclick="navigateImage(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-light btn-navigation next-btn" onclick="navigateImage(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Aracı Sil</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+                <p class="fw-bold">@Model.CarBrand?.Name @Model.Model (@Model.PlateNumber)</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-1"></i>Sil
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .main-image-container {
+            transition: all 0.3s ease;
+        }
+
+            .main-image-container:hover {
+                transform: translateY(-2px);
+            }
+
+        .thumbnail-container {
+            position: relative;
+            cursor: pointer;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+            .thumbnail-container:hover {
+                transform: scale(1.05);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .thumbnail-container.active {
+                border: 3px solid #4e73df;
+            }
+
+        .main-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4e73df;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+        }
+
+        .no-image-placeholder-detail {
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation-buttons {
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .btn-navigation {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cursor-zoom {
+            cursor: zoom-in;
+        }
+
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .plate-number-detail {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            font-size: 1.1rem;
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Plaka numarasını formatlama
+        $(document).ready(function () {
+            const plate = $('.plate-number-detail').text().trim();
+            if (plate.length === 8) {
+                const formatted = plate.substring(0, 2) + ' ' +
+                    plate.substring(2, 5) + ' ' +
+                    plate.substring(5, 7) + ' ' +
+                    plate.substring(7);
+                $('.plate-number-detail').text(formatted);
+            }
+
+            // Silme modalını başlat
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        });
+
+        // Ana resmi değiştirme
+        function changeMainImage(imageUrl, imageId) {
+            $('#mainImage').attr('src', imageUrl);
+            $('.thumbnail-container').removeClass('active');
+            $(`.thumbnail-container[onclick*="${imageUrl}"]`).addClass('active');
+
+            // Ana resim değişikliğini sunucuya bildir
+            if (imageId) {
+                $.post('@Url.Action("SetMainImage", "Cars")', {
+                    carId: @Model.Id,
+                    imageId: imageId
+                });
+            }
+        }
+
+        // Lightbox açma
+        var currentImageIndex = 0;
+        var imageUrls = @Json.Serialize(Model.Images?.Select(i => i.ImageUrl) ?? new List<string>());
+
+        function openModal(imageUrl) {
+            if (imageUrls.length > 0) {
+                currentImageIndex = imageUrls.indexOf(imageUrl);
+                $('#modalImage').attr('src', imageUrl);
+                var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                modal.show();
+            }
+        }
+
+        // Resimler arasında gezinme
+        function navigateImage(direction) {
+            if (imageUrls.length > 0) {
+                currentImageIndex += direction;
+
+                // Döngüsel gezinme
+                if (currentImageIndex >= imageUrls.length) currentImageIndex = 0;
+                if (currentImageIndex < 0) currentImageIndex = imageUrls.length - 1;
+
+                $('#modalImage').attr('src', imageUrls[currentImageIndex]);
+            }
+        }
+    </script>
+}

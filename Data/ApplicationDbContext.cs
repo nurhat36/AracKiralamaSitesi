@@ -20,6 +20,7 @@ namespace ArackiralamaProje.Data
         public DbSet<Rental> Rentals { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; } // Eklendi
+        public DbSet<CarImage> CarImages { get;set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

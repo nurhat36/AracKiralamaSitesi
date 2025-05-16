@@ -62,6 +62,7 @@ namespace ArackiralamaProje.Models
         [Display(Name = "Fotoğraf URL")]
         [StringLength(500, ErrorMessage = "URL en fazla 500 karakter olabilir.")]
         public string ImageUrl { get; set; }
+        public ICollection<CarImage> Images { get; set; }
 
         [Display(Name = "Müsaitlik Durumu")]
         public bool IsAvailable { get; set; } = true;

@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ArackiralamaProje.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -41,19 +42,30 @@
                     <ul class="navbar-nav">
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark d-flex align-items-center" asp-area="Identity" asp-page="/Account/Manage/Index">
-                                    <img src="@profilePic" alt="Profil Resmi" style="width:32px; height:32px; border-radius:50%; object-fit:cover; margin-right:8px;">
-                                    @UserManager.GetUserName(User)
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@profilePic" alt="Profil Resmi" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
                                 </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <form method="post" asp-area="Identity" asp-page="/Account/Logout" id="logoutForm" class="form-inline">
-                                    <button type="submit" class="nav-link btn btn-link text-dark" style="cursor:pointer;">Çıkış Yap</button>
-                                </form>
-
-
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <div class="px-3 py-2">
+                                            <span class="fw-bold">@UserManager.GetUserName(User)</span>
+                                        </div>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Customer" asp-action="Profile">
+                                            <i class="fas fa-user me-2"></i>Profil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <form method="post" asp-area="Identity" asp-page="/Account/Logout" id="logoutForm">
+                                            <button type="submit" class="dropdown-item" style="cursor:pointer;">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         else
@@ -87,3 +99,22 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+@section Styles {
+    <style>
+        .dropdown-menu {
+            min-width: 200px;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+        }
+
+            .dropdown-item:hover {
+                background-color: #f8f9fa;
+            }
+
+        .dropdown-divider {
+            margin: 0.3rem 0;
+        }
+    </style>
+}

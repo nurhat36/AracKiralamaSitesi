@@ -1,0 +1,22 @@
+﻿@model List<IFormFile>
+@{
+    ViewData["Title"] = "Resim Ekle";
+}
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="AddImages" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="carId" value="@ViewBag.CarId" />
+
+        <div class="form-group mb-3">
+            <label class="control-label">Resimler (Çoklu Seçim)</label>
+            <input type="file" name="files" multiple class="form-control" accept="image/*" />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Yükle</button>
+            <a asp-action="Details" asp-route-id="@ViewBag.CarId" class="btn btn-secondary">İptal</a>
+        </div>
+    </form>
+</div>

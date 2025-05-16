@@ -1,0 +1,87 @@
+﻿@model ArackiralamaProje.Models.Rental
+
+@{
+    ViewData["Title"] = "Araç Kiralama";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <div class="card mt-3">
+        <div class="card-header bg-primary text-white">
+            <h4>@ViewBag.CarInfo</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <input type="hidden" asp-for="CarId" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="RentDate" class="control-label"></label>
+                            <input asp-for="RentDate" class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="RentDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ReturnDate" class="control-label"></label>
+                            <input asp-for="ReturnDate" class="form-control"
+                                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="ReturnDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label class="fw-bold">Günlük Fiyat:</label>
+                    <p>@ViewBag.DailyPrice.ToString("C2")</p>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label class="fw-bold">Tahmini Toplam:</label>
+                    <p id="totalPrice">0 TL</p>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check-circle"></i> Kiralamayı Onayla
+                    </button>
+                    <a asp-controller="Cars" asp-action="Details" asp-route-id="@Model.CarId"
+                       class="btn btn-secondary">
+                        <i class="fas fa-times"></i> İptal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(function () {
+            // Tarih değişikliklerinde toplam fiyatı hesapla
+            function calculateTotal() {
+                const start = new Date($('#RentDate').val());
+                const end = new Date($('#ReturnDate').val());
+                const dailyPrice = @ViewBag.DailyPrice;
+
+                if (start && end && start < end) {
+                    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                    $('#totalPrice').text((days * dailyPrice).toLocaleString('tr-TR', {
+                        style: 'currency',
+                        currency: 'TRY'
+                    }));
+                }
+            }
+
+            $('#RentDate, #ReturnDate').change(calculateTotal);
+            calculateTotal();
+        });
+    </script>
+}
