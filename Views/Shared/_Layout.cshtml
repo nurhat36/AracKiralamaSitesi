@@ -2,7 +2,10 @@
 @using ArackiralamaProje.Models  <!-- Kendi projenin namespace'ine göre düzenle -->
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var profilePic = user?.ProfileImageUrl ?? "/images/default-profile.png";
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +15,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ArackiralamaProje.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
@@ -35,8 +39,12 @@
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index">Merhaba, @UserManager.GetUserName(User)</a>
+                                <a class="nav-link text-dark d-flex align-items-center" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                    <img src="@profilePic" alt="Profil Resmi" style="width:32px; height:32px; border-radius:50%; object-fit:cover; margin-right:8px;">
+                                    @UserManager.GetUserName(User)
+                                </a>
                             </li>
+
                             <li class="nav-item">
                                 <form method="post" asp-area="Identity" asp-page="/Account/Logout" id="logoutForm" class="form-inline">
                                     <button type="submit" class="nav-link btn btn-link text-dark" style="cursor:pointer;">Çıkış Yap</button>

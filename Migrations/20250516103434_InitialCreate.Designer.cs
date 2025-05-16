@@ -4,6 +4,7 @@ using ArackiralamaProje.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArackiralamaProje.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250516103434_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,78 +24,6 @@ namespace ArackiralamaProje.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ApplicationUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ProfileImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
 
             modelBuilder.Entity("ArackiralamaProje.Models.Car", b =>
                 {
@@ -158,108 +89,6 @@ namespace ArackiralamaProje.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CarBrands");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "BMW"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Audi"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Mercedes"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Volkswagen"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Toyota"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Ford"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Honda"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Nissan"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Hyundai"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Kia"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Renault"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "Peugeot"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "Chevrolet"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Name = "Mazda"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Name = "Subaru"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Name = "Tesla"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Name = "Jaguar"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Name = "Volvo"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Name = "Land Rover"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Name = "Mini"
-                        });
                 });
 
             modelBuilder.Entity("ArackiralamaProje.Models.Customer", b =>
@@ -288,8 +117,7 @@ namespace ArackiralamaProje.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Customers");
                 });
@@ -309,33 +137,6 @@ namespace ArackiralamaProje.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FuelTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Benzin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Dizel"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Elektrik"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Hibrit"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "LPG"
-                        });
                 });
 
             modelBuilder.Entity("ArackiralamaProje.Models.GearType", b =>
@@ -353,23 +154,6 @@ namespace ArackiralamaProje.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GearTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Manuel"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Otomatik"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Yarı Otomatik"
-                        });
                 });
 
             modelBuilder.Entity("ArackiralamaProje.Models.Payment", b =>
@@ -491,6 +275,71 @@ namespace ArackiralamaProje.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -601,9 +450,9 @@ namespace ArackiralamaProje.Migrations
 
             modelBuilder.Entity("ArackiralamaProje.Models.Customer", b =>
                 {
-                    b.HasOne("ApplicationUser", "User")
-                        .WithOne("Customer")
-                        .HasForeignKey("ArackiralamaProje.Models.Customer", "UserId")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -651,7 +500,7 @@ namespace ArackiralamaProje.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -660,7 +509,7 @@ namespace ArackiralamaProje.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -675,7 +524,7 @@ namespace ArackiralamaProje.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -684,16 +533,10 @@ namespace ArackiralamaProje.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ApplicationUser", b =>
-                {
-                    b.Navigation("Customer")
                         .IsRequired();
                 });
 

@@ -4,6 +4,7 @@ using ArackiralamaProje.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArackiralamaProje.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250516105912_InitialCreate2")]
+    partial class InitialCreate2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,108 +161,6 @@ namespace ArackiralamaProje.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CarBrands");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "BMW"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Audi"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Mercedes"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Volkswagen"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Toyota"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Ford"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Honda"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Nissan"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Hyundai"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Kia"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Renault"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "Peugeot"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "Chevrolet"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Name = "Mazda"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Name = "Subaru"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Name = "Tesla"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Name = "Jaguar"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Name = "Volvo"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Name = "Land Rover"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Name = "Mini"
-                        });
                 });
 
             modelBuilder.Entity("ArackiralamaProje.Models.Customer", b =>
@@ -309,33 +210,6 @@ namespace ArackiralamaProje.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FuelTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Benzin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Dizel"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Elektrik"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Hibrit"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "LPG"
-                        });
                 });
 
             modelBuilder.Entity("ArackiralamaProje.Models.GearType", b =>
@@ -353,23 +227,6 @@ namespace ArackiralamaProje.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GearTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Manuel"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Otomatik"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Yarı Otomatik"
-                        });
                 });
 
             modelBuilder.Entity("ArackiralamaProje.Models.Payment", b =>
