@@ -9,7 +9,7 @@ namespace ArackiralamaProje.Controllers
     public class CarsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
+       
         public CarsController(ApplicationDbContext context)
         {
             _context = context;
@@ -24,6 +24,8 @@ namespace ArackiralamaProje.Controllers
                     .Include(c => c.CarBrand)
                     .Include(c => c.FuelType)
                     .Include(c => c.GearType)
+                    .OrderBy(c => c.CarBrand.Name)
+                    .ThenBy(c => c.Model)
                     .AsNoTracking()
                     .ToListAsync();
 
@@ -56,13 +58,10 @@ namespace ArackiralamaProje.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CarBrandId,FuelTypeId,GearTypeId,Model,Year,PlateNumber,PricePerDay,ImageUrl,IsAvailable")] Car car)
         {
+            Console.WriteLine($"Gelen veri - CarBrandId: {car.CarBrandId}, FuelTypeId: {car.FuelTypeId}, GearTypeId: {car.GearTypeId}");
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    await PopulateDropdowns(car);
-                    return View(car);
-                }
+                
 
                 // Yeni araç oluştur
                 var newCar = new Car
@@ -95,15 +94,15 @@ namespace ArackiralamaProje.Controllers
         private async Task PopulateDropdowns(Car car = null)
         {
             ViewBag.CarBrands = new SelectList(
-                await _context.CarBrands.AsNoTracking().ToListAsync(),
+                await _context.CarBrands.OrderBy(x => x.Name).AsNoTracking().ToListAsync(),
                 "Id", "Name", car?.CarBrandId);
 
             ViewBag.FuelTypes = new SelectList(
-                await _context.FuelTypes.AsNoTracking().ToListAsync(),
+                await _context.FuelTypes.OrderBy(x => x.Name).AsNoTracking().ToListAsync(),
                 "Id", "Name", car?.FuelTypeId);
 
             ViewBag.GearTypes = new SelectList(
-                await _context.GearTypes.AsNoTracking().ToListAsync(),
+                await _context.GearTypes.OrderBy(x => x.Name).AsNoTracking().ToListAsync(),
                 "Id", "Name", car?.GearTypeId);
         }
     }
