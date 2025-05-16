@@ -1,4 +1,6 @@
-﻿namespace ArackiralamaProje.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace ArackiralamaProje.Models
 {
     public class Rental
     {
@@ -12,7 +14,8 @@
 
         public DateTime RentDate { get; set; }          // Kiralama başlangıç tarihi
         public DateTime ReturnDate { get; set; }        // Araç teslim tarihi
-
+        
+        [Precision(18, 2)]
         public decimal TotalPrice { get; set; }         // Toplam kira ücreti
         public bool IsReturned { get; set; }            // Araç teslim edildi mi?
 

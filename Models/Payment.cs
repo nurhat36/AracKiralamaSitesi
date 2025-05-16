@@ -1,4 +1,6 @@
-﻿namespace ArackiralamaProje.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace ArackiralamaProje.Models
 {
     public class Payment
     {
@@ -7,7 +9,9 @@
         public Rental Rental { get; set; }              // Kiralama ilişkisi
 
         public DateTime PaymentDate { get; set; }       // Ödeme tarihi
-        public string PaymentMethod { get; set; }       // Ödeme yöntemi (Kart, Havale vb.)
+        public string PaymentMethod { get; set; }
+
+        [Precision(18, 2)]// Ödeme yöntemi (Kart, Havale vb.)
         public decimal Amount { get; set; }             // Ödeme tutarı
         public bool IsSuccessful { get; set; }          // Başarılı mı?
     }

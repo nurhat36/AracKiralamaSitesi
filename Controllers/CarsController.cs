@@ -18,50 +18,93 @@ namespace ArackiralamaProje.Controllers
         // Araç listeleme
         public async Task<IActionResult> Index()
         {
-            var cars = await _context.Cars
-                .Include(c => c.CarBrand)
-                .Include(c => c.FuelType)
-                .Include(c => c.GearType)
-                .ToListAsync();
-            return View(cars);
+            try
+            {
+                var cars = await _context.Cars
+                    .Include(c => c.CarBrand)
+                    .Include(c => c.FuelType)
+                    .Include(c => c.GearType)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return View(cars);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Hata (Index): " + ex.Message);
+                return View("Error");
+            }
         }
 
         // Araç ekleme sayfası (GET)
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            // ViewBag veya ViewData ile dropdownlar için veri gönder
-            ViewBag.CarBrands = new SelectList(_context.CarBrands, "Id", "Name");
-            ViewBag.FuelTypes = new SelectList(_context.FuelTypes, "Id", "Name");
-            ViewBag.GearTypes = new SelectList(_context.GearTypes, "Id", "Name");
-
-
-            return View();
+            try
+            {
+                await PopulateDropdowns();
+                return View(new Car { IsAvailable = true });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Hata (Create GET): " + ex.Message);
+                return View("Error");
+            }
         }
 
         // Araç ekleme işlemi (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Car car)
+        public async Task<IActionResult> Create([Bind("CarBrandId,FuelTypeId,GearTypeId,Model,Year,PlateNumber,PricePerDay,ImageUrl,IsAvailable")] Car car)
         {
-            // ModelState hatalarını loglayın
-            if (!ModelState.IsValid)
+            try
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors);
-                foreach (var error in errors)
+                if (!ModelState.IsValid)
                 {
-                    Console.WriteLine(error.ErrorMessage); // Hataları görmek için
+                    await PopulateDropdowns(car);
+                    return View(car);
                 }
 
-                ViewBag.CarBrands = new SelectList(_context.CarBrands, "Id", "Name", car.CarBrandId);
-                ViewBag.FuelTypes = new SelectList(_context.FuelTypes, "Id", "Name", car.FuelTypeId);
-                ViewBag.GearTypes = new SelectList(_context.GearTypes, "Id", "Name", car.GearTypeId);
+                // Yeni araç oluştur
+                var newCar = new Car
+                {
+                    CarBrandId = car.CarBrandId,
+                    FuelTypeId = car.FuelTypeId,
+                    GearTypeId = car.GearTypeId,
+                    Model = car.Model,
+                    Year = car.Year,
+                    PlateNumber = car.PlateNumber,
+                    PricePerDay = car.PricePerDay,
+                    ImageUrl = car.ImageUrl,
+                    IsAvailable = car.IsAvailable,
+                    CreatedDate = DateTime.Now
+                };
 
+                _context.Cars.Add(newCar);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Hata: " + ex.Message);
+                await PopulateDropdowns(car);
+                ModelState.AddModelError("", "Kayıt sırasında bir hata oluştu: " + ex.Message);
                 return View(car);
             }
+        }
 
-            _context.Cars.Add(car);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+        private async Task PopulateDropdowns(Car car = null)
+        {
+            ViewBag.CarBrands = new SelectList(
+                await _context.CarBrands.AsNoTracking().ToListAsync(),
+                "Id", "Name", car?.CarBrandId);
+
+            ViewBag.FuelTypes = new SelectList(
+                await _context.FuelTypes.AsNoTracking().ToListAsync(),
+                "Id", "Name", car?.FuelTypeId);
+
+            ViewBag.GearTypes = new SelectList(
+                await _context.GearTypes.AsNoTracking().ToListAsync(),
+                "Id", "Name", car?.GearTypeId);
         }
     }
 }

@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7069;http://localhost:5236"
+      "applicationUrl": "http://localhost:5236"
     },
     "IIS Express": {
       "commandName": "IISExpress",
