@@ -55,12 +55,18 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="Customer" asp-action="Profile">
-                                            <i class="fas fa-user me-2"></i>Profil
+                                            <i class="fas fa-user me-2"></i>Profil Bilgilerim
                                         </a>
                                     </li>
                                     <li>
-                                        <form method="post" asp-area="Identity" asp-page="/Account/Logout" id="logoutForm">
-                                            <button type="submit" class="dropdown-item" style="cursor:pointer;">
+                                        <a class="dropdown-item" asp-controller="Rental" asp-action="MyRentals">
+                                            <i class="fas fa-car me-2"></i>Kiralama Geçmişim
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" asp-area="Identity" asp-page="/Account/Logout" id="logoutForm" class="d-inline">
+                                            <button type="submit" class="dropdown-item bg-transparent border-0 w-100 text-start" style="cursor:pointer;">
                                                 <i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap
                                             </button>
                                         </form>

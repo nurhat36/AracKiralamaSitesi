@@ -47,6 +47,33 @@ public class RentalController : Controller
 
         return View(model);
     }
+    public async Task<IActionResult> MyRentals()
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+
+        if (currentUser == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var customer = await _context.Customers
+            .FirstOrDefaultAsync(c => c.UserId == currentUser.Id);
+
+        if (customer == null)
+        {
+            return NotFound("Müşteri bilgisi bulunamadı.");
+        }
+
+        var rentals = await _context.Rentals
+            .Include(r => r.Car)
+                .ThenInclude(c => c.CarBrand)
+            .Where(r => r.CustomerId == customer.Id)
+            .OrderByDescending(r => r.RentDate)
+            .ToListAsync();
+
+        return View(rentals);
+    }
+
 
     // Kiralama işlemini işle
     [HttpPost]

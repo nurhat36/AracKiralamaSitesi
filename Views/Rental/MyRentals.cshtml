@@ -1,0 +1,228 @@
+﻿@model List<Rental>
+@{
+    ViewData["Title"] = "Kiralama Geçmişim";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mt-4">
+            <i class="fas fa-history me-2"></i>Kiralama Geçmişim
+        </h1>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-filter me-1"></i> Filtrele
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="?filter=all">Tüm Kiralamalar</a></li>
+                <li><a class="dropdown-item" href="?filter=active">Devam Edenler</a></li>
+                <li><a class="dropdown-item" href="?filter=completed">Tamamlananlar</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-table me-1"></i>
+            Kiralama Kayıtları
+        </div>
+        <div class="card-body">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Henüz kiralama geçmişiniz bulunmamaktadır.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="rentalsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Araç Bilgileri</th>
+                                <th class="text-center">Kiralama Tarihi</th>
+                                <th class="text-center">İade Tarihi</th>
+                                <th class="text-center">Toplam Tutar</th>
+                                <th class="text-center">Durum</th>
+                                <th class="text-center">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var car = item.Car;
+                                var isLate = item.ReturnDate < DateTime.Now && !item.IsReturned;
+
+                                <tr class="@(isLate ? "table-warning" : "")">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="vehicle-image-container">
+                                                @if (!string.IsNullOrEmpty(car?.ImageUrl))
+                                                {
+                                                    <img src="@(car?.ImageUrl ?? "/images/car-placeholder.jpg")"
+                                                         alt="@car?.Model"
+                                                         class="img-fluid rounded shadow-sm" onerror="this.src='/images/vehicle-placeholder.jpg'">
+                                                }
+                                                else
+                                                {
+                                                    <div class="no-image-placeholder">
+                                                        <i class="fas fa-car-side fa-2x text-muted"></i>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-1">
+                                                    @(car?.CarBrand?.Name ?? "Marka Bilinmiyor") @(car?.Model ?? "Model Bilinmiyor")
+                                                </h6>
+                                                <small class="text-muted">
+                                                    @if (car?.FuelType != null)
+                                                    {
+                                                        <i class="fas fa-gas-pump me-1"></i>
+
+                                                        @car.FuelType.Name
+                                                    }
+                                                    @if (car?.GearType != null)
+                                                    {
+                                                        <i class="fas fa-cog ms-2 me-1"></i>
+
+                                                        @car.GearType.Name
+                                                    }
+                                                    @if (car?.Year > 0)
+                                                    {
+                                                        <i class="fas fa-calendar-alt ms-2 me-1"></i>
+
+                                                        @car.Year
+                                                    }
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @item.RentDate.ToString("dd MMM yyyy")
+                                        <br>
+                                        <small class="text-muted">@item.RentDate.ToString("HH:mm")</small>
+                                    </td>
+                                    <td class="text-center">
+                                        @item.ReturnDate.ToString("dd MMM yyyy")
+                                        <br>
+                                        <small class="text-muted">@item.ReturnDate.ToString("HH:mm")</small>
+                                    </td>
+                                    <td class="text-center fw-bold text-success">
+                                        @item.TotalPrice.ToString("C2")
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.IsReturned)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success">
+                                                <i class="fas fa-check-circle me-1"></i> Tamamlandı
+                                            </span>
+                                        }
+                                        else if (isLate)
+                                        {
+                                            <span class="badge bg-danger bg-opacity-10 text-danger">
+                                                <i class="fas fa-exclamation-circle me-1"></i> Gecikmiş
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info bg-opacity-10 text-info">
+                                                <i class="fas fa-clock me-1"></i> Devam Ediyor
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="@Url.Action("Details", "Cars", new { id = item.Id })"
+                                           class="btn btn-sm btn-outline-primary" title="Detaylar">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        @if (!item.IsReturned && item.ReturnDate >= DateTime.Now)
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger ms-1"
+                                                    title="İptal Et" data-bs-toggle="modal"
+                                                    data-bs-target="#cancelModal-@item.Id">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .vehicle-image-container {
+            width: 100px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+            .vehicle-image-container img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                border-radius: 4px;
+            }
+
+        .badge {
+            padding: 5px 10px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        #rentalsTable tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            #rentalsTable tbody tr:hover {
+                background-color: #f8f9fa;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+        .alert {
+            border-radius: 0.5rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+        @if (Model != null && Model.Any())
+        {
+            <text>
+                    $('#rentalsTable').DataTable({
+                        language: {
+                            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+                        },
+                        columnDefs: [
+                            { orderable: false, targets: [5] }
+                        ],
+                        order: [[1, 'desc']],
+                        responsive: true,
+                        initComplete: function () {
+                            $('.dataTables_filter input').addClass('form-control');
+                            $('.dataTables_length select').addClass('form-select');
+                        }
+                    });
+            </text>
+        }
+                });
+    </script>
+}
