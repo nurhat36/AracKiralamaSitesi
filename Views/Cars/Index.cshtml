@@ -5,6 +5,96 @@
 }
 
 <div class="container-fluid px-4">
+    <div class="container-fluid px-4">
+        <!-- Filtreleme Kartı -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-light">
+                <i class="fas fa-filter me-1"></i>
+                Gelişmiş Filtreleme
+            </div>
+            <div class="card-body">
+                <form method="get" id="filterForm">
+                    <div class="row g-3">
+                        <!-- Mevcut filtreler -->
+                        <div class="col-md-3">
+                            <label for="brandFilter" class="form-label">Marka</label>
+                            <select class="form-select" id="brandFilter" name="brandFilter">
+                                <option value="">Tüm Markalar</option>
+                                @foreach (var brand in Model.Select(c => c.CarBrand?.Name).Distinct().Where(b => !string.IsNullOrEmpty(b)))
+                                {
+                                    <option value="@brand">@brand</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="yearFilter" class="form-label">Yıl</label>
+                            <select class="form-select" id="yearFilter" name="yearFilter">
+                                <option value="">Tüm Yıllar</option>
+                                @foreach (var year in Model.Select(c => c.Year).Distinct().OrderByDescending(y => y))
+                                {
+                                    <option value="@year">@year</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="availabilityFilter" class="form-label">Durum</label>
+                            <select class="form-select" id="availabilityFilter" name="availabilityFilter">
+                                <option value="">Tümü</option>
+                                <option value="true">Müsait</option>
+                                <option value="false">Kiralandı</option>
+                            </select>
+                        </div>
+
+                        <!-- Yeni eklenen filtreler -->
+                        <div class="col-md-2">
+                            <label for="fuelTypeFilter" class="form-label">Yakıt Türü</label>
+                            <select class="form-select" id="fuelTypeFilter" name="fuelTypeFilter">
+                                <option value="">Tüm Yakıtlar</option>
+                                @foreach (var fuelType in ViewBag.FuelTypes)
+                                {
+                                    <option value="@fuelType">@fuelType</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="gearTypeFilter" class="form-label">Vites Tipi</label>
+                            <select class="form-select" id="gearTypeFilter" name="gearTypeFilter">
+                                <option value="">Tüm Vitesler</option>
+                                @foreach (var gearType in ViewBag.GearTypes)
+                                {
+                                    <option value="@gearType">@gearType</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Günlük Fiyat Aralığı</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" placeholder="Min" name="minPriceFilter" id="minPriceFilter">
+                                <span class="input-group-text">-</span>
+                                <input type="number" class="form-control" placeholder="Max" name="maxPriceFilter" id="maxPriceFilter">
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i> Filtrele
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100 ms-2">
+                                <i class="fas fa-times me-1"></i> Temizle
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Mevcut içerik burada kalacak -->
+        <!-- ... -->
+    </div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mt-4">
             <i class="fas fa-car me-2"></i>Araç Listesi
@@ -165,7 +255,37 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
+        /* Filtreleme formu stilleri */
+        /* Filtreleme formu stilleri */
+        #filterForm .form-label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            color: #6c757d;
+        }
 
+        #filterForm .form-select,
+        #filterForm .form-control {
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s ease;
+        }
+
+            #filterForm .form-select:focus,
+            #filterForm .form-control:focus {
+                border-color: #4e73df;
+                box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+            }
+
+        .filter-card {
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
         .btn-primary {
             background-color: #4e73df;
             border-color: #4e73df;
@@ -191,6 +311,72 @@
 
 @section Scripts {
     <script>
+        $(document).ready(function () {
+            // DataTable başlatma
+            var table = $('#carTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+                },
+                dom: '<"top"<"row"<"col-md-6"l><"col-md-6"f>>>rt<"bottom"<"row"<"col-md-6"i><"col-md-6"p>><"clear">',
+                columnDefs: [
+                    { orderable: false, targets: [0] },
+                    { searchable: false, targets: [0, 7] }
+                ],
+                initComplete: function () {
+                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_length select').addClass('form-select');
+                }
+            });
+
+            // Filtre formu submit olduğunda
+            $('#filterForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // Filtre değerlerini al
+                var brand = $('#brandFilter').val();
+                var year = $('#yearFilter').val();
+                var availability = $('#availabilityFilter').val();
+                var fuelType = $('#fuelTypeFilter').val();
+                var gearType = $('#gearTypeFilter').val();
+                var minPrice = $('#minPriceFilter').val();
+                var maxPrice = $('#maxPriceFilter').val();
+
+                // URL oluştur
+                var url = '@Url.Action("Index")' +
+                    '?brandFilter=' + encodeURIComponent(brand) +
+                    '&yearFilter=' + encodeURIComponent(year) +
+                    '&availabilityFilter=' + encodeURIComponent(availability) +
+                    '&fuelTypeFilter=' + encodeURIComponent(fuelType) +
+                    '&gearTypeFilter=' + encodeURIComponent(gearType) +
+                    '&minPriceFilter=' + encodeURIComponent(minPrice) +
+                    '&maxPriceFilter=' + encodeURIComponent(maxPrice);
+
+                // Sayfayı yenile
+                window.location.href = url;
+            });
+
+            // Sayfa yüklendiğinde URL'deki filtreleri uygula
+            var urlParams = new URLSearchParams(window.location.search);
+            $('#brandFilter').val(urlParams.get('brandFilter') || '');
+            $('#yearFilter').val(urlParams.get('yearFilter') || '');
+            $('#availabilityFilter').val(urlParams.get('availabilityFilter') || '');
+            $('#fuelTypeFilter').val(urlParams.get('fuelTypeFilter') || '');
+            $('#gearTypeFilter').val(urlParams.get('gearTypeFilter') || '');
+            $('#minPriceFilter').val(urlParams.get('minPriceFilter') || '');
+            $('#maxPriceFilter').val(urlParams.get('maxPriceFilter') || '');
+
+            // Plaka numaralarını formatlama
+            $('.plate-number').each(function () {
+                let plate = $(this).text();
+                if (plate.length === 8) {
+                    let formatted = plate.substring(0, 2) + ' ' +
+                        plate.substring(2, 5) + ' ' +
+                        plate.substring(5, 7) + ' ' +
+                        plate.substring(7);
+                    $(this).text(formatted);
+                }
+            });
+        });
         $(document).ready(function () {
             $('#carTable').DataTable({
                 language: {

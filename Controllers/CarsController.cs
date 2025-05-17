@@ -23,27 +23,69 @@ namespace ArackiralamaProje.Controllers
         }
 
         // Araç listeleme
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+     string brandFilter,
+     int? yearFilter,
+     bool? availabilityFilter,
+     string fuelTypeFilter,
+     string gearTypeFilter,
+     decimal? minPriceFilter,
+     decimal? maxPriceFilter)
         {
-            try
-            {
-                var cars = await _context.Cars
-                    .Include(c => c.CarBrand)
-                    .Include(c => c.FuelType)
-                    .Include(c => c.GearType)
-                    .Include(c => c.Images) // Resimleri de dahil ediyoruz
-                    .OrderBy(c => c.CarBrand.Name)
-                    .ThenBy(c => c.Model)
-                    .AsNoTracking()
-                    .ToListAsync();
+            var carsQuery = _context.Cars
+                .Include(c => c.CarBrand)
+                .Include(c => c.FuelType)
+                .Include(c => c.GearType)
+                .AsQueryable();
 
-                return View(cars);
-            }
-            catch (Exception ex)
+            // Marka filtresi
+            if (!string.IsNullOrEmpty(brandFilter))
             {
-                Console.WriteLine("Hata (Index): " + ex.Message);
-                return View("Error");
+                carsQuery = carsQuery.Where(c => c.CarBrand.Name.Contains(brandFilter));
             }
+
+            // Yıl filtresi
+            if (yearFilter.HasValue)
+            {
+                carsQuery = carsQuery.Where(c => c.Year == yearFilter.Value);
+            }
+
+            // Müsaitlik filtresi
+            if (availabilityFilter.HasValue)
+            {
+                carsQuery = carsQuery.Where(c => c.IsAvailable == availabilityFilter.Value);
+            }
+
+            // Yakıt türü filtresi
+            if (!string.IsNullOrEmpty(fuelTypeFilter))
+            {
+                carsQuery = carsQuery.Where(c => c.FuelType.Name == fuelTypeFilter);
+            }
+
+            // Vites tipi filtresi
+            if (!string.IsNullOrEmpty(gearTypeFilter))
+            {
+                carsQuery = carsQuery.Where(c => c.GearType.Name == gearTypeFilter);
+            }
+
+            // Fiyat aralığı filtresi
+            if (minPriceFilter.HasValue)
+            {
+                carsQuery = carsQuery.Where(c => c.PricePerDay >= minPriceFilter.Value);
+            }
+
+            if (maxPriceFilter.HasValue)
+            {
+                carsQuery = carsQuery.Where(c => c.PricePerDay <= maxPriceFilter.Value);
+            }
+
+            var cars = await carsQuery.ToListAsync();
+
+            // ViewBag ile filtre seçeneklerini gönder
+            ViewBag.FuelTypes = await _context.FuelTypes.Select(f => f.Name).Distinct().ToListAsync();
+            ViewBag.GearTypes = await _context.GearTypes.Select(g => g.Name).Distinct().ToListAsync();
+
+            return View(cars);
         }
 
         // Araç detayları
