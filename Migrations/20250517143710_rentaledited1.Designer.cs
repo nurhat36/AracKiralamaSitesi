@@ -4,6 +4,7 @@ using ArackiralamaProje.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArackiralamaProje.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250517143710_rentaledited1")]
+    partial class rentaledited1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -480,6 +483,9 @@ namespace ArackiralamaProje.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CustomerId1")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsReturned")
                         .HasColumnType("bit");
 
@@ -518,6 +524,8 @@ namespace ArackiralamaProje.Migrations
                     b.HasIndex("CarId");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("CustomerId1");
 
                     b.ToTable("Rentals");
                 });
@@ -709,7 +717,7 @@ namespace ArackiralamaProje.Migrations
                     b.HasOne("ArackiralamaProje.Models.Rental", "Rental")
                         .WithOne("Payment")
                         .HasForeignKey("ArackiralamaProje.Models.Payment", "RentalId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Rental");
@@ -724,10 +732,14 @@ namespace ArackiralamaProje.Migrations
                         .IsRequired();
 
                     b.HasOne("ArackiralamaProje.Models.Customer", "Customer")
-                        .WithMany("Rentals")
+                        .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("ArackiralamaProje.Models.Customer", null)
+                        .WithMany("Rentals")
+                        .HasForeignKey("CustomerId1");
 
                     b.Navigation("Car");
 

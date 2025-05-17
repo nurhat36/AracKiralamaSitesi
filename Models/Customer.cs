@@ -7,6 +7,7 @@ namespace ArackiralamaProje.Models
     public class Customer
     {
         public int Id { get; set; }
+        public ICollection<Rental> Rentals { get; set; }
 
         [Required(ErrorMessage = "Kullanıcı ID zorunludur")]
         [ForeignKey("User")]
@@ -26,7 +27,7 @@ namespace ArackiralamaProje.Models
         [StringLength(50, ErrorMessage = "Ehliyet numarası en fazla 50 karakter olabilir")]
         public string DrivingLicenseNumber { get; set; }
 
-        public ICollection<Rental> Rentals { get; set; }
+       
 
 
         [DataType(DataType.Date)]

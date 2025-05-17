@@ -10,6 +10,7 @@ namespace ArackiralamaProje.Models
 
         [Required]
         public int CustomerId { get; set; }
+        [ForeignKey("CustomerId")]
         public Customer Customer { get; set; }
 
         [Required]

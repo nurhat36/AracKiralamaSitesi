@@ -1,59 +1,17 @@
-﻿@model ArackiralamaProje.Controllers.CustomerProfileViewModel
+﻿@model ArackiralamaProje.ViewModels.CustomerProfileViewModel
 
-@{
-    ViewData["Title"] = "Profil Bilgilerini Tamamla";
-}
-
-<div class="container mt-4">
-    <h2>@ViewData["Title"]</h2>
-    <hr />
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger">
-            @TempData["ErrorMessage"]
-        </div>
-    }
-
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="CompleteProfile" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="FullName" class="control-label"></label>
-                    <input asp-for="FullName" class="form-control" />
-                    <span asp-validation-for="FullName" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="PhoneNumber" class="control-label"></label>
-                    <input asp-for="PhoneNumber" class="form-control" />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="DrivingLicenseNumber" class="control-label"></label>
-                    <input asp-for="DrivingLicenseNumber" class="form-control" />
-                    <span asp-validation-for="DrivingLicenseNumber" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="Address" class="control-label"></label>
-                    <textarea asp-for="Address" class="form-control"></textarea>
-                    <span asp-validation-for="Address" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                </div>
-            </form>
-        </div>
+@if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+{
+    <div class="alert alert-success">
+        @ViewBag.SuccessMessage
     </div>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
 }
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<!-- Form içeriği burada kalacak -->

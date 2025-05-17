@@ -14,10 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Views\Cars\Details.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ContainerEnvironmentVariable Include="ASPNETCORE_HTTPS_PORTS">
       <Value>8081</Value>
     </ContainerEnvironmentVariable>
@@ -42,10 +38,6 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Cars\Details.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Views\Cars\Details.cshtml" />
   </ItemGroup>
 
 </Project>

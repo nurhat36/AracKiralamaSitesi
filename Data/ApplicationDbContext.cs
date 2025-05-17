@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ArackiralamaProje.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace ArackiralamaProje.Data
 {
@@ -19,17 +18,21 @@ namespace ArackiralamaProje.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Rental> Rentals { get; set; }
         public DbSet<Payment> Payments { get; set; }
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; } // Eklendi
-        public DbSet<CarImage> CarImages { get;set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<CarImage> CarImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // GearType seed verisi
             builder.Entity<GearType>().HasData(
                 new GearType { Id = 1, Name = "Manuel" },
                 new GearType { Id = 2, Name = "Otomatik" },
                 new GearType { Id = 3, Name = "Yarı Otomatik" }
             );
+
+            // FuelType seed verisi
             builder.Entity<FuelType>().HasData(
                 new FuelType { Id = 1, Name = "Benzin" },
                 new FuelType { Id = 2, Name = "Dizel" },
@@ -37,6 +40,8 @@ namespace ArackiralamaProje.Data
                 new FuelType { Id = 4, Name = "Hibrit" },
                 new FuelType { Id = 5, Name = "LPG" }
             );
+
+            // CarBrand seed verisi
             builder.Entity<CarBrand>().HasData(
                 new CarBrand { Id = 1, Name = "BMW" },
                 new CarBrand { Id = 2, Name = "Audi" },
@@ -60,19 +65,30 @@ namespace ArackiralamaProje.Data
                 new CarBrand { Id = 20, Name = "Mini" }
             );
 
-            // Customer ile ApplicationUser ilişkisi
+            // Customer <-> ApplicationUser ilişkisi (1-1)
             builder.Entity<Customer>()
-            .HasOne(c => c.User)
-            .WithOne(u => u.Customer)  // ApplicationUser'daki navigation property
-            .HasForeignKey<Customer>(c => c.UserId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(c => c.User)
+                .WithOne(u => u.Customer)
+                .HasForeignKey<Customer>(c => c.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Rental ile Payment ilişkisi
+            // Rental <-> Customer ilişkisi (N-1)
+            builder.Entity<Rental>()
+                .HasOne(r => r.Customer)
+                .WithMany(c => c.Rentals)
+                .HasForeignKey(r => r.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Rental <-> Payment ilişkisi (1-1)
             builder.Entity<Rental>()
                 .HasOne(r => r.Payment)
                 .WithOne(p => p.Rental)
-                .HasForeignKey<Payment>(p => p.RentalId);
+                .HasForeignKey<Payment>(p => p.RentalId)
+                .OnDelete(DeleteBehavior.SetNull);
+            builder.Entity<Customer>()
+                .HasIndex(c => c.UserId)
+                .IsUnique();
 
         }
     }

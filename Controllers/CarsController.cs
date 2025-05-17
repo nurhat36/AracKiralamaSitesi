@@ -72,7 +72,7 @@ namespace ArackiralamaProje.Controllers
                               r.ReturnDate >= DateTime.Today &&
                               !r.IsReturned);
 
-            return View(car);
+            return View("~/Views/Cars/Details.cshtml", car);
         }
 
         // Araç ekleme sayfası (GET)

@@ -55,13 +55,6 @@ public class RentalController : Controller
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                await PopulateViewData(rental.CarId);
-                return View(rental);
-            }
-
-            // Kullanıcı kontrolü
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
@@ -70,7 +63,8 @@ public class RentalController : Controller
                 return View(rental);
             }
 
-            // Diğer validasyonlar...
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == currentUser.Id);
+
             var rentalDays = (rental.ReturnDate - rental.RentDate).Days;
             if (rentalDays < 1)
             {
@@ -79,7 +73,6 @@ public class RentalController : Controller
                 return View(rental);
             }
 
-            // Araç ve müsaitlik kontrolleri...
             var car = await _context.Cars.FindAsync(rental.CarId);
             if (car == null)
             {
@@ -88,12 +81,27 @@ public class RentalController : Controller
                 return View(rental);
             }
 
-            // Kiralama kaydını oluştur
-            rental.CustomerId = currentUser.Id;
+            // Müsaitlik kontrolü
+            bool isCarAvailable = !await _context.Rentals
+                .AnyAsync(r => r.CarId == rental.CarId && r.ReturnDate >= DateTime.Today && !r.IsReturned);
+
+            if (!isCarAvailable)
+            {
+                ModelState.AddModelError("", "Bu araç şu anda müsait değil");
+                await PopulateViewData(rental.CarId);
+                return View(rental);
+            }
+
+            rental.CustomerId = customer.Id;
             rental.TotalPrice = rentalDays * car.PricePerDay;
             rental.CreatedAt = DateTime.Now;
 
             _context.Rentals.Add(rental);
+
+            // Aracı müsait değil olarak işaretle
+            car.IsAvailable = false;
+            _context.Cars.Update(car);
+
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Success", new { id = rental.Id });
@@ -106,6 +114,7 @@ public class RentalController : Controller
             return View(rental);
         }
     }
+
 
     private async Task PopulateViewData(int carId)
     {
