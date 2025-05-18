@@ -29,6 +29,7 @@ public class RentalController : Controller
     [HttpGet]
     public IActionResult Create(int carId)
     {
+        Console.WriteLine("buraya girdi");
         var car = _context.Cars
             .Include(c => c.CarBrand)
             .FirstOrDefault(c => c.Id == carId);
@@ -85,11 +86,12 @@ public class RentalController : Controller
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
+                Console.WriteLine("Kiralama yapabilmek için giriş yapmalısınız");
                 ModelState.AddModelError("", "Kiralama yapabilmek için giriş yapmalısınız");
                 await PopulateViewData(rental.CarId);
-                return View(rental);
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
             }
-
+            Console.WriteLine("burayamı girdin");
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == currentUser.Id);
 
             var rentalDays = (rental.ReturnDate - rental.RentDate).Days;
@@ -109,8 +111,10 @@ public class RentalController : Controller
             }
 
             // Müsaitlik kontrolü
-            bool isCarAvailable = !await _context.Rentals
-                .AnyAsync(r => r.CarId == rental.CarId && r.ReturnDate >= DateTime.Today && !r.IsReturned);
+            // Müsaitlik kontrolü (artık trigger da kontrol edecek)
+            bool isCarAvailable = await _context.Cars
+                .Where(c => c.Id == rental.CarId && c.IsAvailable)
+                .AnyAsync();
 
             if (!isCarAvailable)
             {
@@ -122,14 +126,10 @@ public class RentalController : Controller
             rental.CustomerId = customer.Id;
             rental.TotalPrice = rentalDays * car.PricePerDay;
             rental.CreatedAt = DateTime.Now;
+            rental.IsReturned = false; // Yeni eklenen alan
 
             _context.Rentals.Add(rental);
-
-            // Aracı müsait değil olarak işaretle
-            car.IsAvailable = false;
-            _context.Cars.Update(car);
-
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // Trigger burada tetiklenecek
 
             return RedirectToAction("Success", new { id = rental.Id });
         }

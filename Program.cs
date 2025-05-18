@@ -15,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+// Program.cs
+builder.Services.AddHostedService<CarStatusBackgroundService>();
 // Program.cs veya Startup.cs içinde
 builder.Services.Configure<FormOptions>(options =>
 {

@@ -64,6 +64,11 @@ namespace ArackiralamaProje.Data
                 new CarBrand { Id = 19, Name = "Land Rover" },
                 new CarBrand { Id = 20, Name = "Mini" }
             );
+            builder.Entity<Rental>(entity =>
+            {
+                // Trigger tanımı
+                entity.ToTable(tb => tb.HasTrigger("TR_Rental_UpdateCarAvailability"));
+            });
 
             // Customer <-> ApplicationUser ilişkisi (1-1)
             builder.Entity<Customer>()

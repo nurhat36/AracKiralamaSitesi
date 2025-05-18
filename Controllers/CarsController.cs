@@ -139,7 +139,7 @@ namespace ArackiralamaProje.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
                     car.CreatedDate = DateTime.Now;
                     _context.Add(car);
