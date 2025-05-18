@@ -79,5 +79,7 @@ namespace ArackiralamaProje.Models
         [Display(Name = "Son Güncellenme")]
         [ScaffoldColumn(false)]
         public DateTime? LastUpdated { get; set; }
+        // Models/Car.cs
+        public ICollection<Comment> Comments { get; set; }
     }
 }

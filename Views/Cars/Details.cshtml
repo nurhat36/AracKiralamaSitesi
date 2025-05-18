@@ -1,4 +1,7 @@
-﻿@model ArackiralamaProje.Models.Car
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@model ArackiralamaProje.Models.Car
 
 @{
     ViewData["Title"] = "Araç Detayları";
@@ -129,7 +132,7 @@
                                 <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
                                     <i class="fas fa-trash-alt me-1"></i>Aracı Sil
                                 </button>
-                                @if (ViewBag.IsCarAvailable)
+                                @if (Model.IsAvailable)
                                 {
                                     <a asp-controller="Rental" asp-action="Create" asp-route-carId="@Model.Id"
                                        class="btn btn-success">
@@ -184,6 +187,95 @@
             else
             {
                 <div class="alert alert-info">Bu araca henüz resim eklenmemiş.</div>
+            }
+        </div>
+    </div>
+
+    <!-- Yorum Ekleme Formu -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-comment me-1"></i> Yorum Ekle
+        </div>
+        <div class="card-body">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <form asp-controller="Cars" asp-action="AddComment" method="post">
+                    <input type="hidden" name="carId" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Puan</label>
+                        <div class="rating-stars">
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                <input type="radio" id="star@(i)" name="rating" value="@i" required />
+                                <label for="star@(i)" title="@i yıldız">&#9733;</label>
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Yorumunuz</label>
+                        <textarea class="form-control" name="content" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i> Gönder
+                    </button>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Yorum yapabilmek için <a asp-area="Identity" asp-page="/Account/Login">giriş yapın</a>.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Yorumlar Listesi -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-comments me-1"></i> Müşteri Yorumları
+        </div>
+        <div class="card-body">
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
+                {
+                    var user = await UserManager.FindByIdAsync(comment.UserId);
+                    <div class="comment mb-4 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="fw-bold">@UserManager.GetUserName(User)</div>
+                            <div class="text-muted small">@comment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                        </div>
+                        <div class="rating mb-2">
+                            @for (int i = 0; i < comment.Rating; i++)
+                            {
+                                <span class="text-warning">★</span>
+                            }
+                            @for (int i = comment.Rating; i < 5; i++)
+                            {
+                                <span class="text-secondary">★</span>
+                            }
+                        </div>
+                        <div class="comment-content">
+                            @comment.Content
+                        </div>
+                        @if (SignInManager.IsSignedIn(User) && (UserManager.GetUserId(User) == comment.UserId || User.IsInRole("Admin")))
+                        {
+                            <div class="mt-2 text-end">
+                                <form asp-action="DeleteComment" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@comment.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Bu yorumu silmek istediğinize emin misiniz?')">
+                                        <i class="fas fa-trash-alt"></i> Sil
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">Henüz yorum yapılmamış.</div>
             }
         </div>
     </div>
@@ -339,6 +431,43 @@
             border-radius: 5px;
             display: inline-block;
         }
+
+        .rating-stars {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+            .rating-stars input {
+                display: none;
+            }
+
+            .rating-stars label {
+                font-size: 2rem;
+                color: #ddd;
+                cursor: pointer;
+                transition: color 0.2s;
+            }
+
+                .rating-stars input:checked ~ label,
+                .rating-stars label:hover,
+                .rating-stars label:hover ~ label {
+                    color: #ffc107;
+                }
+
+            .rating-stars input:checked + label {
+                color: #ffc107;
+            }
+
+        .comment {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .comment-content {
+            white-space: pre-line;
+        }
     </style>
 }
 
@@ -357,6 +486,12 @@
 
             // Silme modalını başlat
             var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+            // Yıldız rating için interaktiflik
+            $('.rating-stars input').on('change', function () {
+                const rating = $(this).val();
+                console.log(`Seçilen puan: ${rating}`);
+            });
         });
 
         // Ana resmi değiştirme

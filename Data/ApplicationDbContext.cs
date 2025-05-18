@@ -20,10 +20,20 @@ namespace ArackiralamaProje.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<CarImage> CarImages { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<Comment>()
+                .HasOne(c => c.Car)
+                .WithMany(c => c.Comments)
+                .HasForeignKey(c => c.CarId);
+
+            builder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId);
 
             // GearType seed verisi
             builder.Entity<GearType>().HasData(

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace ArackiralamaProje.Controllers
 {
@@ -15,11 +17,13 @@ namespace ArackiralamaProje.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CarsController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment)
+        public CarsController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
+            _userManager = userManager;
         }
 
         // Araç listeleme
@@ -101,8 +105,9 @@ namespace ArackiralamaProje.Controllers
                 .Include(c => c.FuelType)
                 .Include(c => c.GearType)
                 .Include(c => c.Images)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+                .Include(c => c.Comments)
+                    .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (car == null)
             {
                 return NotFound();
@@ -130,6 +135,57 @@ namespace ArackiralamaProje.Controllers
                 Console.WriteLine("Hata (Create GET): " + ex.Message);
                 return View("Error");
             }
+        }
+        // CarsController.cs
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comment = await _context.Comments.FindAsync(id);
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            // Sadece yorum sahibi veya admin silebilir
+            var currentUserId = _userManager.GetUserId(User);
+            if (comment.UserId != currentUserId && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = comment.CarId });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> AddComment(int carId, string content, int rating)
+        {
+            var car = await _context.Cars.FindAsync(carId);
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            var comment = new Comment
+            {
+                CarId = carId,
+                UserId = userId,
+                Content = content,
+                Rating = rating,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = carId });
         }
 
         // Araç ekleme işlemi (POST)
