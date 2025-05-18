@@ -136,6 +136,76 @@ namespace ArackiralamaProje.Controllers
                 return View("Error");
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var car = await _context.Cars
+                .Include(c => c.Images)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+            await PopulateDropdowns(car);
+            return View(car);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CarBrandId,FuelTypeId,GearTypeId,Model,Year,PlateNumber,PricePerDay,ImageUrl,IsAvailable")] Car car, List<IFormFile> files)
+        {
+            if (id != car.Id)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                try
+                {
+                    // Güncelleme tarihini ayarla
+                    car.LastUpdated = DateTime.Now;
+
+                    _context.Update(car);
+                    await _context.SaveChangesAsync();
+
+                    // Yeni resimleri kaydet
+                    if (files != null && files.Count > 0)
+                    {
+                        await SaveCarImages(car.Id, files);
+                    }
+
+                    return RedirectToAction(nameof(Details), new { id = car.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CarExists(car.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            await PopulateDropdowns(car);
+            return View(car);
+        }
+
+        
+        private bool CarExists(int id)
+        {
+            return _context.Cars.Any(e => e.Id == id);
+        }
         // CarsController.cs
         [HttpPost]
         [Authorize]
